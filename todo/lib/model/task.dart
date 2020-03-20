@@ -1,6 +1,6 @@
 
 class Task {
-   int id;
+   String id;
    bool checked;
    String name;
 
