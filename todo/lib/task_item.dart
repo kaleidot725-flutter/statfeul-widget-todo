@@ -13,7 +13,7 @@ class TaskItem extends StatefulWidget {
 }
 
 class _TaskItemState extends State<TaskItem> {
-  final TaskRepository repo = Singleton.taskRepository;
+  final TaskRepository taskRepository = Singleton.taskRepository;
   final Task task;
 
   _TaskItemState(this.task);
@@ -27,11 +27,11 @@ class _TaskItemState extends State<TaskItem> {
           onChanged: (value) {
             setState(() {
               task.checked = value;
-              repo.update(task);
+              taskRepository.update(task);
             });
           },
         ),
-        Text(task.name)
+        Expanded(child: Text(task.name)),
       ],
     );
   }

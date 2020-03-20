@@ -38,19 +38,27 @@ class _TaskListState extends State<TaskList> {
             _editText = text;
           },
         )),
-        IconButton(icon: Icon(Icons.add), onPressed: () {
-          setState(() {
-            Task task = Task(taskRepository.createNewId(), false, _editText);
-            taskRepository.insert(task);
-          });
-        },),
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {
+            setState(() {
+              Task task = Task(taskRepository.createNewId(), false, _editText);
+              taskRepository.insert(task);
+            });
+          },
+        ),
       ]),
       Expanded(
           child: ListView.builder(
               padding: const EdgeInsets.all(8),
               itemCount: tasks.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(child: TaskItem(task: tasks[index]));
+                return Dismissible(
+                    child: TaskItem(task: tasks[index]),
+                    key: Key(tasks[index].id),
+                    onDismissed: (task) {
+                      taskRepository.delete(tasks[index]);
+                    });
               }))
     ]);
   }
