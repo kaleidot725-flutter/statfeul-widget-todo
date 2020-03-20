@@ -1,7 +1,8 @@
 
 class Task {
+   int id;
    bool checked;
    String name;
 
-   Task(this.checked, this.name);
+   Task(this.id, this.checked, this.name);
 }

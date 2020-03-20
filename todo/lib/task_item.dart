@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:todo/model/singleton.dart';
 import 'package:todo/model/task.dart';
+import 'package:todo/model/task_repository.dart';
 
 class TaskItem extends StatefulWidget {
   final Task task;
@@ -11,6 +13,7 @@ class TaskItem extends StatefulWidget {
 }
 
 class _TaskItemState extends State<TaskItem> {
+  final TaskRepository repo = Singleton.taskRepository;
   final Task task;
 
   _TaskItemState(this.task);
@@ -24,6 +27,7 @@ class _TaskItemState extends State<TaskItem> {
           onChanged: (value) {
             setState(() {
               task.checked = value;
+              repo.update(task);
             });
           },
         ),
