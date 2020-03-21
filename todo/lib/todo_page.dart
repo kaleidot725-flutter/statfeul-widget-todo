@@ -9,13 +9,15 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  final String title = "TODO";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Todo")),
+      appBar: AppBar(title: Text(title)),
       body: Container(
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: TaskList()
+        margin: EdgeInsets.all(8),
+          child: TaskList()
       ),
     );
   }

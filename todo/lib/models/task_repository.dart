@@ -1,5 +1,5 @@
-import 'package:todo/model/task.dart';
 import 'package:uuid/uuid.dart';
+import 'package:todo/models/task.dart';
 
 class TaskRepository {
   List<Task> _tasks = <Task>[
@@ -8,10 +8,6 @@ class TaskRepository {
     Task("3", true, "CDEFDEFDEF"),
     Task("4", true, "DEFEFEFEFE"),
     Task("5", false, "GENERATOR"),
-    Task("6", true, "FINAL ATTACK"),
-    Task("7", false, "Generator"),
-    Task("8", true, "Hidden Kid"),
-    Task("9", false, "Identical Town"),
   ];
 
   Uuid _uuid = Uuid();
