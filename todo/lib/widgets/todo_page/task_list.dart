@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'models/task.dart';
-import 'models/task_repository.dart';
-import 'singleton.dart';
+import '../../models/task.dart';
+import '../../models/task_repository.dart';
+import '../../singleton.dart';
 
 class TaskList extends StatefulWidget {
   TaskList({Key key}) : super(key: key);
@@ -230,8 +230,13 @@ class _TaskListState extends State<TaskList> {
   }
 
   void check(Task task, bool value) {
-    var newTask = Task(task.id, value, task.name);
-    _repository.update(newTask);
+    if (value) {
+      task.check();
+    }
+    else {
+      task.uncheck();
+    }
+    _repository.update(task);
   }
 
   String getLeftTaskCount() {

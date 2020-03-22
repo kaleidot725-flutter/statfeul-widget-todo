@@ -9,4 +9,12 @@ class Task {
    String get name => _name;
 
    Task(this._id, this._checked, this._name);
+
+   void check() {
+      _checked = true;
+   }
+
+   void uncheck() {
+      _checked = false;
+   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo/todo_page.dart';
+import 'package:todo/widgets/todo_page/todo_page.dart';
 
 import 'singleton.dart';
 

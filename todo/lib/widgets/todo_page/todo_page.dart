@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo/task_list.dart';
+import 'package:todo/widgets/todo_page/task_list.dart';
 
 class TodoApp extends StatefulWidget {
   TodoApp({Key key}) : super(key: key);
