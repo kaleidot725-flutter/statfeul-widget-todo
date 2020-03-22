@@ -16,25 +16,34 @@ class TaskList extends StatefulWidget {
 }
 
 class _TaskListState extends State<TaskList> {
-  TaskRepository _repository = Singleton.taskRepository;
-  List<Task> _tasks = [];
+  final TextEditingController _taskNameControler = new TextEditingController();
+  final TaskRepository _repository = Singleton.taskRepository;
+  final List<Task> _tasks = List<Task>();
+
   String _taskName = "";
+  String _sortType = "ALL";
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Task>>(
       future: _repository.getAll(),
       builder: (context, AsyncSnapshot<List<Task>> snapshot) {
-        _tasks = snapshot.data;
-        return Column(children: <Widget>[
-          Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-            buildAllCheckButton(),
-            buildTaskNameTextField(),
-            buildTaskAddButton(),
-          ]),
-          Expanded(child: buildTaskListView()),
-          buildSortMenu(),
-        ]);
+        _tasks.clear();
+        _tasks.addAll(sortTasks(snapshot.data, _sortType));
+
+        return Container(
+            padding: const EdgeInsets.all(8),
+            child: Column(children: <Widget>[
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    buildAllCheckButton(),
+                    buildTaskNameTextField(),
+                    buildTaskAddButton(),
+                  ]),
+              Expanded(child: buildTaskListView()),
+              buildSortMenu(),
+            ]));
       },
     );
   }
@@ -46,8 +55,7 @@ class _TaskListState extends State<TaskList> {
         setState(() {
           var nextState = getNextAllCheckedState();
           for (Task task in _tasks) {
-            task.checked = nextState;
-            _repository.insert(task);
+            check(task, nextState);
           }
         });
       },
@@ -55,9 +63,11 @@ class _TaskListState extends State<TaskList> {
   }
 
   Widget buildTaskNameTextField() {
-    return Expanded(child: TextField(
+    return Expanded(
+        child: TextField(
+      controller: _taskNameControler,
       onChanged: (String text) {
-        _taskName = text;
+        updateTaskName(text);
       },
     ));
   }
@@ -67,7 +77,8 @@ class _TaskListState extends State<TaskList> {
       icon: Icon(Icons.add),
       onPressed: () {
         setState(() {
-          _repository.insert(Task(_repository.createNewId(), false, _taskName));
+          add(Task(_repository.createNewId(), false, _taskName));
+          clearTaskName();
         });
       },
     );
@@ -75,7 +86,6 @@ class _TaskListState extends State<TaskList> {
 
   Widget buildTaskListView() {
     return ListView.builder(
-        padding: const EdgeInsets.all(5),
         itemCount: (_tasks != null) ? _tasks.length : 0,
         itemBuilder: (BuildContext context, int index) {
           return buildTaskListItem(_tasks[index]);
@@ -89,8 +99,7 @@ class _TaskListState extends State<TaskList> {
           value: task.checked,
           onChanged: (value) {
             setState(() {
-              task.checked = value;
-              _repository.update(task);
+              check(task, value);
             });
           },
         ),
@@ -99,7 +108,7 @@ class _TaskListState extends State<TaskList> {
           icon: Icon(Icons.cancel),
           onPressed: () {
             setState(() {
-              _repository.delete(task);
+              delete(task);
             });
           },
         )
@@ -111,41 +120,69 @@ class _TaskListState extends State<TaskList> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text("0 LEFT ITEM",
-            style: TextStyle(fontSize: 5, color: Colors.red)),
         SizedBox(
             width: 70,
-            child: MaterialButton(
-              child: Text("ACTIVE", style: TextStyle(fontSize: 5)),
-              color: Colors.white,
-              textColor: Colors.red,
-              onPressed: () {},
+            child: FlatButton(
+              padding: EdgeInsets.all(0),
+              child: Text(getLeftTaskCount(), style: TextStyle(fontSize: 10, color: Colors.purple)),
+              color: Colors.transparent,
+              textColor: Colors.purple,
+            )),
+        SizedBox(
+            width: 70,
+            child: FlatButton(
+              padding: EdgeInsets.all(0),
+              child: Text("ALL", style: TextStyle(fontSize: 10)),
+              color: (_sortType == "ALL") ? Colors.purple : Colors.transparent,
+              textColor: (_sortType == "ALL") ? Colors.white : Colors.purple,
+              onPressed: () {
+                setState(() {
+                  _sortType = "ALL";
+                });
+              },
             )),
         SizedBox(
           width: 70,
-          child: MaterialButton(
-            child: Text("ACTIVE", style: TextStyle(fontSize: 5)),
-            color: Colors.white,
-            textColor: Colors.red,
-            onPressed: () {},
+          child: FlatButton(
+            padding: EdgeInsets.all(0),
+            child: Text("ACTIVE", style: TextStyle(fontSize: 10)),
+            color: (_sortType == "ACTIVE") ? Colors.purple : Colors.transparent,
+            textColor: (_sortType == "ACTIVE") ? Colors.white : Colors.purple,
+            onPressed: () {
+              setState(() {
+                _sortType = "ACTIVE";
+              });
+            },
           ),
         ),
         SizedBox(
           width: 70,
-          child: MaterialButton(
-            child: Text("COMPLETED", style: TextStyle(fontSize: 5)),
-            color: Colors.white,
-            textColor: Colors.red,
-            onPressed: () {},
+          child: FlatButton(
+            padding: EdgeInsets.all(0),
+            child: Text("COMPLETED", style: TextStyle(fontSize: 10)),
+            color:
+                (_sortType == "COMPLETED") ? Colors.purple : Colors.transparent,
+            textColor:
+                (_sortType == "COMPLETED") ? Colors.white : Colors.purple,
+            onPressed: () {
+              setState(() {
+                _sortType = "COMPLETED";
+              });
+            },
           ),
         ),
         SizedBox(
           width: 70,
-          child: MaterialButton(
-            child: Text("CLEAR\nCOMPLETED", style: TextStyle(fontSize: 5)),
-            color: Colors.white,
-            textColor: Colors.red,
-            onPressed: () {},
+          child: FlatButton(
+            padding: EdgeInsets.all(0),
+            child: Text("CLEAR\nCOMPLETED", style: TextStyle(fontSize: 10)),
+            color: Colors.transparent,
+            textColor: Colors.purple,
+            onPressed: () {
+              setState(() {
+                clearCompleteTasks();
+              });
+            },
           ),
         )
       ],
@@ -160,5 +197,52 @@ class _TaskListState extends State<TaskList> {
     }
 
     return false;
+  }
+
+  List<Task> sortTasks(List<Task> tasks, String sortType) {
+    if (sortType == "ALL") {
+      return tasks;
+    } else if (sortType == "ACTIVE") {
+      return tasks.where((value) => (!value.checked)).toList();
+    } else if (sortType == "COMPLETED") {
+      return tasks.where((value) => (value.checked)).toList();
+    } else {
+      return tasks;
+    }
+  }
+
+  void updateTaskName(String taskName) {
+    _taskName = taskName;
+  }
+
+  void clearTaskName() {
+    _taskName = "";
+    _taskNameControler.clear();
+  }
+
+  void add(Task task) {
+    _repository.insert(task);
+  }
+
+  void delete(Task task) {
+    _repository.delete(task);
+  }
+
+  void check(Task task, bool value) {
+    task.checked = value;
+    _repository.update(task);
+  }
+
+  String getLeftTaskCount() {
+    var count = _tasks.where((value) => (!value.checked)).toList().length;
+    return count.toString() + " LEFT";
+  }
+
+  void clearCompleteTasks() {
+    var deletableTasks= _tasks.where((value) => (value.checked)).toList();
+    _tasks.remove(deletableTasks);
+    deletableTasks.forEach((value) => {
+      _repository.delete(value)
+    });
   }
 }
