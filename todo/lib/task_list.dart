@@ -230,8 +230,8 @@ class _TaskListState extends State<TaskList> {
   }
 
   void check(Task task, bool value) {
-    task.checked = value;
-    _repository.update(task);
+    var newTask = Task(task.id, value, task.name);
+    _repository.update(newTask);
   }
 
   String getLeftTaskCount() {
