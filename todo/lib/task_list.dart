@@ -46,7 +46,7 @@ class _TaskListState extends State<TaskList> {
           var nextState = getNextAllCheckedState();
           for (Task task in _tasks) {
             task.checked = nextState;
-            _repository.update(task);
+            _repository.insert(task);
           }
         });
       },
@@ -75,7 +75,7 @@ class _TaskListState extends State<TaskList> {
   Widget buildTaskListView() {
     return ListView.builder(
         padding: const EdgeInsets.all(8),
-        itemCount: _tasks.length,
+        itemCount: (_tasks != null) ? _tasks.length : 0,
         itemBuilder: (BuildContext context, int index) {
           return buildTaskListItem(_tasks[index]);
         });

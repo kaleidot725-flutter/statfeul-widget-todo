@@ -43,8 +43,7 @@ class TaskRepository {
       _database = await createDatabase();
     }
 
-    _database.update("tasks", task.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    _database.update("tasks", task.toMap(), where: "id = ?", whereArgs: [task.id]);
   }
 
   String createNewId() {
