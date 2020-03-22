@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:todo/todo_app.dart';
 
-void main() => runApp(MyApp());
+import 'models/singleton.dart';
+
+void main() async {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

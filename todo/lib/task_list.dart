@@ -9,7 +9,10 @@ class TaskList extends StatefulWidget {
   TaskList({Key key}) : super(key: key);
 
   @override
-  _TaskListState createState() => _TaskListState();
+  _TaskListState createState() {
+    var state = _TaskListState();
+    return state;
+  }
 }
 
 class _TaskListState extends State<TaskList> {
@@ -17,20 +20,22 @@ class _TaskListState extends State<TaskList> {
   List<Task> _tasks = [];
   String _taskName = "";
 
-  _TaskListState() {
-    _tasks = _repository.getAll();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-        buildAllCheckButton(),
-        buildTaskNameTextField(),
-        buildTaskAddButton(),
-      ]),
-      Expanded(child:buildTaskListView())
-    ]);
+    return FutureBuilder<List<Task>>(
+      future: _repository.getAll(),
+      builder: (context, AsyncSnapshot<List<Task>> snapshot) {
+        _tasks = snapshot.data;
+        return Column(children: <Widget>[
+          Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+            buildAllCheckButton(),
+            buildTaskNameTextField(),
+            buildTaskAddButton(),
+          ]),
+          Expanded(child:buildTaskListView())
+        ]);
+      },
+    );
   }
 
   Widget buildAllCheckButton() {

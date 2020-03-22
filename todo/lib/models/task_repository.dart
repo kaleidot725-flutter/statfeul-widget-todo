@@ -1,40 +1,65 @@
-import 'package:uuid/uuid.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:todo/models/singleton.dart';
 import 'package:todo/models/task.dart';
+import 'package:uuid/uuid.dart';
 
 class TaskRepository {
-  List<Task> _tasks = <Task>[
-    Task("1", true, "ABCDEFG"),
-    Task("2", false, "BBBBBB"),
-    Task("3", true, "CDEFDEFDEF"),
-    Task("4", true, "DEFEFEFEFE"),
-    Task("5", false, "GENERATOR"),
-  ];
-
+  Database _database;
   Uuid _uuid = Uuid();
 
-  List<Task> getAll() => _tasks;
+  TaskRepository();
 
-  insert(Task task) {
-    _tasks.add(task);
-  }
-
-  bool delete(Task task) {
-    return _tasks.remove(task);
-  }
-
-  bool update(Task task) {
-    int index = _tasks.indexWhere((Task t) => t.id == task.id);
-    if (index == -1) {
-      return false;
+  Future<List<Task>> getAll() async {
+    if (_database == null) {
+      _database = await createDatabase();
     }
 
-    _tasks.removeAt(index);
-    _tasks.insert(index, task);
+    List<Map<String, dynamic>> maps = await _database.query("tasks");
+    return List.generate(maps.length, (i) {
+      return Task(maps[i]["id"], (maps[i]["checked"] == 1), maps[i]["name"]);
+    });
+  }
 
+  Future<void> insert(Task task) async {
+    if (_database == null) {
+      _database = await createDatabase();
+    }
+
+    _database.insert("tasks", task.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<void> delete(Task task) async {
+    if (_database == null) {
+      _database = await createDatabase();
+    }
+
+    _database.delete("tasks", where: "id = ?", whereArgs: [task.id]);
     return true;
+  }
+
+  Future<void> update(Task task) async {
+    if (_database == null) {
+      _database = await createDatabase();
+    }
+
+    _database.update("tasks", task.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   String createNewId() {
     return _uuid.v4();
+  }
+
+  Future<Database> createDatabase() async {
+    return openDatabase(
+      join(await getDatabasesPath(), 'tasks_database.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          "CREATE TABLE tasks(id TEXT PRIMARY KEY, name TEXT, checked INTEGER)",
+        );
+      },
+      version: 1,
+    );
   }
 }
