@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:todo/task_list.dart';
 
-class App extends StatefulWidget {
-  App({Key key}) : super(key: key);
+class TodoApp extends StatefulWidget {
+  TodoApp({Key key}) : super(key: key);
 
   @override
-  _AppState createState() => _AppState();
+  _TodoPageState createState() => _TodoPageState();
 }
 
-class _AppState extends State<App> {
+class _TodoPageState extends State<TodoApp> {
   final String title = "TODO";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Container(
-        margin: EdgeInsets.all(8),
-          child: TaskList()
-      ),
+      body: Container(margin: EdgeInsets.all(8), child: TaskList())
     );
   }
 }

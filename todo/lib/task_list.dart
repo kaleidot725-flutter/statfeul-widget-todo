@@ -29,7 +29,7 @@ class _TaskListState extends State<TaskList> {
         buildTaskNameTextField(),
         buildTaskAddButton(),
       ]),
-      Expanded()
+      Expanded(child:buildTaskListView())
     ]);
   }
 
