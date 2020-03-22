@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'singleton.dart';
 import 'models/task.dart';
 import 'models/task_repository.dart';
+import 'singleton.dart';
 
 class TaskList extends StatefulWidget {
   TaskList({Key key}) : super(key: key);
@@ -32,7 +32,8 @@ class _TaskListState extends State<TaskList> {
             buildTaskNameTextField(),
             buildTaskAddButton(),
           ]),
-          Expanded(child:buildTaskListView())
+          Expanded(child: buildTaskListView()),
+          buildSortMenu(),
         ]);
       },
     );
@@ -74,7 +75,7 @@ class _TaskListState extends State<TaskList> {
 
   Widget buildTaskListView() {
     return ListView.builder(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(5),
         itemCount: (_tasks != null) ? _tasks.length : 0,
         itemBuilder: (BuildContext context, int index) {
           return buildTaskListItem(_tasks[index]);
@@ -101,6 +102,51 @@ class _TaskListState extends State<TaskList> {
               _repository.delete(task);
             });
           },
+        )
+      ],
+    );
+  }
+
+  Widget buildSortMenu() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text("0 LEFT ITEM",
+            style: TextStyle(fontSize: 5, color: Colors.red)),
+        SizedBox(
+            width: 70,
+            child: MaterialButton(
+              child: Text("ACTIVE", style: TextStyle(fontSize: 5)),
+              color: Colors.white,
+              textColor: Colors.red,
+              onPressed: () {},
+            )),
+        SizedBox(
+          width: 70,
+          child: MaterialButton(
+            child: Text("ACTIVE", style: TextStyle(fontSize: 5)),
+            color: Colors.white,
+            textColor: Colors.red,
+            onPressed: () {},
+          ),
+        ),
+        SizedBox(
+          width: 70,
+          child: MaterialButton(
+            child: Text("COMPLETED", style: TextStyle(fontSize: 5)),
+            color: Colors.white,
+            textColor: Colors.red,
+            onPressed: () {},
+          ),
+        ),
+        SizedBox(
+          width: 70,
+          child: MaterialButton(
+            child: Text("CLEAR\nCOMPLETED", style: TextStyle(fontSize: 5)),
+            color: Colors.white,
+            textColor: Colors.red,
+            onPressed: () {},
+          ),
         )
       ],
     );
