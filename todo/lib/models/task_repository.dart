@@ -1,7 +1,8 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:todo/models/singleton.dart';
+import 'package:todo/singleton.dart';
 import 'package:todo/models/task.dart';
+import 'package:todo/models/task_ext.dart';
 import 'package:uuid/uuid.dart';
 
 class TaskRepository {

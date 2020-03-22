@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todo/todo_app.dart';
+import 'package:todo/todo_page.dart';
 
-import 'models/singleton.dart';
+import 'singleton.dart';
 
 void main() async {
   runApp(MyApp());

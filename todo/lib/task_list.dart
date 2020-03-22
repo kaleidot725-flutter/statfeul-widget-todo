@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'models/singleton.dart';
+import 'singleton.dart';
 import 'models/task.dart';
 import 'models/task_repository.dart';
 
