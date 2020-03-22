@@ -28,22 +28,23 @@ class _TaskListState extends State<TaskList> {
     return FutureBuilder<List<Task>>(
       future: _repository.getAll(),
       builder: (context, AsyncSnapshot<List<Task>> snapshot) {
-        _tasks.clear();
-        _tasks.addAll(sortTasks(snapshot.data, _sortType));
+        if (snapshot.data != null) {
+          _tasks.clear();
+          _tasks.addAll(sortTasks(snapshot.data, _sortType));
+        }
 
         return Container(
-            padding: const EdgeInsets.all(8),
             child: Column(children: <Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    buildAllCheckButton(),
-                    buildTaskNameTextField(),
-                    buildTaskAddButton(),
-                  ]),
-              Expanded(child: buildTaskListView()),
-              buildSortMenu(),
-            ]));
+          Container(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 16),
+              child: Row(children: <Widget>[
+                buildAllCheckButton(),
+                buildTaskNameTextField(),
+                buildTaskAddButton(),
+              ])),
+          Expanded(child: buildTaskListView()),
+          buildSortMenu(),
+        ]));
       },
     );
   }
@@ -124,17 +125,18 @@ class _TaskListState extends State<TaskList> {
             width: 70,
             child: FlatButton(
               padding: EdgeInsets.all(0),
-              child: Text(getLeftTaskCount(), style: TextStyle(fontSize: 10, color: Colors.purple)),
+              child: Text(getLeftTaskCount(),
+                  style: TextStyle(fontSize: 10, color: Colors.black)),
               color: Colors.transparent,
-              textColor: Colors.purple,
+              textColor: Colors.amber,
             )),
         SizedBox(
             width: 70,
             child: FlatButton(
               padding: EdgeInsets.all(0),
               child: Text("ALL", style: TextStyle(fontSize: 10)),
-              color: (_sortType == "ALL") ? Colors.purple : Colors.transparent,
-              textColor: (_sortType == "ALL") ? Colors.white : Colors.purple,
+              color: (_sortType == "ALL") ? Colors.amber : Colors.transparent,
+              textColor: Colors.black,
               onPressed: () {
                 setState(() {
                   _sortType = "ALL";
@@ -146,8 +148,8 @@ class _TaskListState extends State<TaskList> {
           child: FlatButton(
             padding: EdgeInsets.all(0),
             child: Text("ACTIVE", style: TextStyle(fontSize: 10)),
-            color: (_sortType == "ACTIVE") ? Colors.purple : Colors.transparent,
-            textColor: (_sortType == "ACTIVE") ? Colors.white : Colors.purple,
+            color: (_sortType == "ACTIVE") ? Colors.amber : Colors.transparent,
+            textColor: Colors.black,
             onPressed: () {
               setState(() {
                 _sortType = "ACTIVE";
@@ -161,9 +163,8 @@ class _TaskListState extends State<TaskList> {
             padding: EdgeInsets.all(0),
             child: Text("COMPLETED", style: TextStyle(fontSize: 10)),
             color:
-                (_sortType == "COMPLETED") ? Colors.purple : Colors.transparent,
-            textColor:
-                (_sortType == "COMPLETED") ? Colors.white : Colors.purple,
+                (_sortType == "COMPLETED") ? Colors.amber : Colors.transparent,
+            textColor: Colors.black,
             onPressed: () {
               setState(() {
                 _sortType = "COMPLETED";
@@ -177,7 +178,7 @@ class _TaskListState extends State<TaskList> {
             padding: EdgeInsets.all(0),
             child: Text("CLEAR\nCOMPLETED", style: TextStyle(fontSize: 10)),
             color: Colors.transparent,
-            textColor: Colors.purple,
+            textColor: Colors.black,
             onPressed: () {
               setState(() {
                 clearCompleteTasks();
@@ -239,10 +240,8 @@ class _TaskListState extends State<TaskList> {
   }
 
   void clearCompleteTasks() {
-    var deletableTasks= _tasks.where((value) => (value.checked)).toList();
+    var deletableTasks = _tasks.where((value) => (value.checked)).toList();
     _tasks.remove(deletableTasks);
-    deletableTasks.forEach((value) => {
-      _repository.delete(value)
-    });
+    deletableTasks.forEach((value) => {_repository.delete(value)});
   }
 }
