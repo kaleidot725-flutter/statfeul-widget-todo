@@ -14,8 +14,6 @@ class _TodoPageState extends State<TodoApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Container(child: TaskList())
-    );
+        appBar: AppBar(title: Text(title)), body: Container(child: TaskList()));
   }
 }

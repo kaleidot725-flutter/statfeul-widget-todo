@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todo/models/task_sort.dart';
 
 import '../../models/task.dart';
 import '../../models/task_repository.dart';
@@ -18,10 +19,11 @@ class TaskList extends StatefulWidget {
 class _TaskListState extends State<TaskList> {
   final TextEditingController _taskNameControler = new TextEditingController();
   final TaskRepository _repository = Singleton.taskRepository;
+  final List<Task> _allTasks = List<Task>();
   final List<Task> _tasks = List<Task>();
 
   String _taskName = "";
-  String _sortType = "ALL";
+  String _sortType = TaskSort.all;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,8 @@ class _TaskListState extends State<TaskList> {
         if (snapshot.data != null) {
           _tasks.clear();
           _tasks.addAll(sortTasks(snapshot.data, _sortType));
+          _allTasks.clear();
+          _allTasks.addAll(snapshot.data);
         }
 
         return Container(
@@ -54,10 +58,7 @@ class _TaskListState extends State<TaskList> {
       icon: Icon(Icons.arrow_drop_down),
       onPressed: () {
         setState(() {
-          var nextState = getNextAllCheckedState();
-          for (Task task in _tasks) {
-            check(task, nextState);
-          }
+          checkAll();
         });
       },
     );
@@ -134,12 +135,14 @@ class _TaskListState extends State<TaskList> {
             width: 70,
             child: FlatButton(
               padding: EdgeInsets.all(0),
-              child: Text("ALL", style: TextStyle(fontSize: 10)),
-              color: (_sortType == "ALL") ? Colors.amber : Colors.transparent,
+              child: Text(TaskSort.all, style: TextStyle(fontSize: 10)),
+              color: (_sortType == TaskSort.all)
+                  ? Colors.amber
+                  : Colors.transparent,
               textColor: Colors.black,
               onPressed: () {
                 setState(() {
-                  _sortType = "ALL";
+                  _sortType = TaskSort.all;
                 });
               },
             )),
@@ -147,12 +150,14 @@ class _TaskListState extends State<TaskList> {
           width: 70,
           child: FlatButton(
             padding: EdgeInsets.all(0),
-            child: Text("ACTIVE", style: TextStyle(fontSize: 10)),
-            color: (_sortType == "ACTIVE") ? Colors.amber : Colors.transparent,
+            child: Text(TaskSort.active, style: TextStyle(fontSize: 10)),
+            color: (_sortType == TaskSort.active)
+                ? Colors.amber
+                : Colors.transparent,
             textColor: Colors.black,
             onPressed: () {
               setState(() {
-                _sortType = "ACTIVE";
+                _sortType = TaskSort.active;
               });
             },
           ),
@@ -161,13 +166,14 @@ class _TaskListState extends State<TaskList> {
           width: 70,
           child: FlatButton(
             padding: EdgeInsets.all(0),
-            child: Text("COMPLETED", style: TextStyle(fontSize: 10)),
-            color:
-                (_sortType == "COMPLETED") ? Colors.amber : Colors.transparent,
+            child: Text(TaskSort.completed, style: TextStyle(fontSize: 10)),
+            color: (_sortType == TaskSort.completed)
+                ? Colors.amber
+                : Colors.transparent,
             textColor: Colors.black,
             onPressed: () {
               setState(() {
-                _sortType = "COMPLETED";
+                _sortType = TaskSort.completed;
               });
             },
           ),
@@ -190,22 +196,12 @@ class _TaskListState extends State<TaskList> {
     );
   }
 
-  bool getNextAllCheckedState() {
-    for (Task task in _tasks) {
-      if (!task.checked) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   List<Task> sortTasks(List<Task> tasks, String sortType) {
-    if (sortType == "ALL") {
+    if (sortType == TaskSort.all) {
       return tasks;
-    } else if (sortType == "ACTIVE") {
+    } else if (sortType == TaskSort.active) {
       return tasks.where((value) => (!value.checked)).toList();
-    } else if (sortType == "COMPLETED") {
+    } else if (sortType == TaskSort.completed) {
       return tasks.where((value) => (value.checked)).toList();
     } else {
       return tasks;
@@ -232,21 +228,26 @@ class _TaskListState extends State<TaskList> {
   void check(Task task, bool value) {
     if (value) {
       task.check();
-    }
-    else {
+    } else {
       task.uncheck();
     }
     _repository.update(task);
   }
 
+  void checkAll() {
+    var nextState = _tasks.any((task) => task.checked == false);
+    _tasks.forEach((task) {
+      check(task, nextState);
+    });
+  }
+
   String getLeftTaskCount() {
-    var count = _tasks.where((value) => (!value.checked)).toList().length;
+    var count = _allTasks.where((value) => (!value.checked)).toList().length;
     return count.toString() + " LEFT";
   }
 
   void clearCompleteTasks() {
-    var deletableTasks = _tasks.where((value) => (value.checked)).toList();
-    _tasks.remove(deletableTasks);
+    var deletableTasks = _allTasks.where((value) => (value.checked)).toList();
     deletableTasks.forEach((value) => {_repository.delete(value)});
   }
 }
